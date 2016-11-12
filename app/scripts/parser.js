@@ -1,22 +1,18 @@
 class Parser {
   constructor() {
-    const {
-      tokens, interpreter, lexer: Lexer,
-      parser: Parser, grammar: Grammar,
-      context: Context
-    } = window.gsWeblangCore;
+    console.log(window.gsWeblangCore);
 
-    this.Context = Context;
-    this.grammar = Grammar(Parser, new Lexer(), tokens, interpreter);
+    this.Context = window.gsWeblangCore.Context;
+    this.buildAst = window.gsWeblangCore.grammar.parse;
   }
 
   parse(sourceCode) {
-    return this.grammar.parseProgram(sourceCode);
+    return this.buildAst(sourceCode);
   }
 
   interpret(ast, initialState) {
     const context = this._createContext(initialState);
-    this.grammar.interpret(ast, context);
+    ast.interpret(context);
     return context;
   }
 

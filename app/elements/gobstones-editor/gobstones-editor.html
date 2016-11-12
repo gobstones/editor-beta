@@ -179,8 +179,9 @@
       },
 
       _reportError: function(e, message, type = "error") {
+        console.log(e);
         this.editor.getSession().setAnnotations([{
-          row: e.on.range.start.row,
+          row: e.on.range.start.row - 1,
           column: 0,
           text: message,
           type: type
