@@ -1,0 +1,129 @@
+<dom-module id="gs-stone">
+  <template>
+    <style>
+      .pointer {
+        cursor: pointer;
+      }
+
+      .unselectable, .gbs_stone {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      ::content div.blue {
+        background-image: url("op_bolita_azul.svg");
+        background-size: 20px 20px;
+      }
+      ::content div.black {
+        background-image: url("op_bolita_negra.svg");
+        background-size: 20px 20px;
+      }
+      ::content div.red {
+        background-image: url("op_bolita_roja.svg");
+        background-size: 20px 20px;
+      }
+      ::content div.green {
+        background-image: url("op_bolita_verde.svg");
+        background-size: 20px 20px;
+      }
+      ::content div.O {
+        background: white;
+        opacity: 0;
+      }
+
+      .hidden {
+        visibility: hidden;
+      }
+
+      .gbs_stone {
+        font-weight: bold;
+        font-size: 8pt;
+        width: 20px;
+        height: 20px;
+      }
+
+      .gbs_stone:after {
+        content: url("op_bolita_azul.svg") url("op_bolita_negra.svg") url("op_bolita_roja.svg") url("op_bolita_verde.svg");
+        display: none;
+      }
+
+      .stone_amount {
+        vertical-align: sub;
+      }
+
+      /*# sourceMappingURL=style.css.map */
+
+    </style>
+
+    <template is="dom-if" if="{{amount}}">
+      <div class$="gbs_stone {{color}} {{cssClass()}}">
+        <span class="stone_amount">{{amount}}</span>
+      </div>
+    </template>
+
+    <template is="dom-if" if="{{!amount}}">
+      <div class$="gbs_stone O {{cssClass()}}"></div>
+    </template>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'gs-stone',
+      properties: {
+        color: String,
+        amount: {
+          type: Number,
+          value: 0,
+          notify: true,
+          observer: "_sanitizeAmount"
+        },
+        options: Object
+      },
+      listeners: {
+        click: "_leftClick",
+        contextmenu: "_rightClick"
+      },
+      ready: function() {
+        this._sanitizeAmount();
+        if (this.options == null) {
+          throw new Error("The options are required");
+        }
+      },
+      cssClass: function() {
+        if (this.options.editable) {
+          return "pointer";
+        } else {
+          return "";
+        }
+      },
+      _sanitizeAmount: function() {
+        if (!(typeof this.amount === "number" && this.amount >= 0)) {
+          return this.amount = 0;
+        }
+      },
+      _leftClick: function(event) {
+        var board;
+        board = this.domHost.domHost;
+        if (!this.options.editable || board.isCtrlPressed()) {
+          return;
+        }
+        this.fire("board-changed");
+        this.amount += 1;
+        return event.stopPropagation();
+      },
+      _rightClick: function(event) {
+        if (!this.options.editable) {
+          return;
+        }
+        event.preventDefault();
+        this.fire("board-changed");
+        return this.amount -= 1;
+      }
+    });
+
+  </script>
+</dom-module>

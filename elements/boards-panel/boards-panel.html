@@ -1,0 +1,191 @@
+<html><head><link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/gs-board/dist/components/gs-board.html">
+<link rel="import" href="../../scripts/parserAndBoardAdapter.html">
+<link rel="import" href="../../scripts/stylist.html">
+<link rel="import" href="../../scripts/availableAttires.html">
+
+</head><body><dom-module id="boards-panel">
+  <template>
+
+    <style>
+      .boards-panel {
+        text-align: center;
+      }
+
+      .show-code-icon {
+        margin-left: -5px;
+        margin-right: 10px;
+      }
+
+      .wind-rose {
+        margin-top: 3px;
+        margin-left: 10px;
+        width: 62px;
+        height: 62px;
+      }
+
+      .alert {
+        color: red;
+      }
+
+      .toast {
+        --paper-toast-background-color: rgba(255, 0, 0, 0.8);
+        margin-left: 40% !important;
+      }
+
+      .tabs {
+        margin-left: -10px;
+        margin-right: -10px;
+        margin-top: -10px;
+        border-left: solid 1px;
+        border-color: #688998;
+
+        z-index: 10;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      .size-bar {
+        margin-top: -22px;
+        margin-bottom: 5px;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      .size-container {
+        display: inline;
+      }
+
+      .attire-container {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      .size-input {
+        display: inline-block;
+        width: 50px;
+      }
+
+      .boom-container {
+        margin-top: 10px;
+      }
+
+      .theBoardContainer {
+        margin-left: -8px;
+      }
+    </style>
+
+    <paper-toolbar class="tabs">
+      <div>
+        <paper-button on-click="toggleShowCode"><iron-icon class$="button show-code-icon {{buttonCssClass(showCode)}}" icon="icons:chevron-left"></iron-icon></paper-button>
+      </div>
+      <div style="width: 90%">
+        <paper-tabs selected="{{selectedTab}}" class="bottom self-end" no-bar="">
+          <paper-tab>[[localize("initial-board")]]</paper-tab>
+          <template is="dom-if" if="{{isFinalBoardVisible(finalState, error)}}">
+            <paper-tab>[[localize("final-board")]]</paper-tab>
+          </template>
+        </paper-tabs>
+      </div>
+      <div>
+        <img class="wind-rose" src="../../images/wind-rose.png">
+      </div>
+    </paper-toolbar>
+
+    <paper-toast class="toast" id="toast"></paper-toast>
+
+    <div class="boards-panel">
+      <template is="dom-if" if="{{isInitialBoardSelected(selectedTab)}}">
+        <div class="size-bar">
+          <form>
+            <div class="size-container">
+              <strong>[[localize("size")]]:</strong>
+              <paper-input class="size-input" value="{{sizeX}}" type="number" min="1" max="30"></paper-input>
+            </div>
+            <div class="size-container">
+              <span>[[localize("columns")]] <strong>[[localize("by")]]</strong></span>
+              <paper-input class="size-input" value="{{sizeY}}" type="number" min="1" max="30"></paper-input>
+              <span>[[localize("rows")]]</span>
+            </div>
+          </form>
+        </div>
+      </template>
+
+      <template is="dom-if" if="{{isFinalBoardSelected(selectedTab)}}">
+        <template is="dom-if" if="{{!error}}">
+          <template is="dom-if" if="{{finalState}}" restamp="true">
+            <div class="size-bar">
+              <div>
+                <form>
+                  <div class="size-container">
+                    <strong>[[localize("size")]]:</strong>
+                    <span>{{sizeX}}</span>
+                    <span>[[localize("columns")]] <strong>[[localize("by")]]</strong></span>
+                    <span>{{sizeY}}</span>
+                    <span>[[localize("rows")]]</span>
+                    <paper-input style="visibility: hidden;" class="size-input"></paper-input>
+                  </div>
+                </form>
+              </div>
+              <div class="attire-container">
+                <paper-button on-click="toggleShowAttire"><iron-icon class="black-button" icon="icons:visibility"></iron-icon></paper-button>
+                <strong>[[localize("attire")]]:</strong>
+                <paper-dropdown-menu no-animations="" no-label-float="" vertical-align="bottom" horizontal-align="right" disabled="{{!showAttire}}">
+                  <paper-listbox class="dropdown-content" selected="{{selectedAttire}}">
+                    <template is="dom-repeat" items="{{ availableAttires }}">
+                      <paper-item>{{item.name}}</paper-item>
+                    </template>
+                  </paper-listbox>
+                </paper-dropdown-menu>
+              </div>
+            </div>
+          </template>
+        </template>
+      </template>
+
+      <div class="theBoardContainer" style="position: relative;">
+        <div class="theBoard" style="position: absolute; left: 0; right: 0;">
+          <!-- Initial board -->
+          <template is="dom-if" if="{{isInitialBoardSelected(selectedTab)}}">
+            <gs-board id="initialStateEditor" size="{{size}}" options="{ &quot;editable&quot;: true }"></gs-board>
+          </template>
+
+          <!-- Final board -->
+          <template is="dom-if" if="{{isFinalBoardSelected(selectedTab)}}">
+            <template is="dom-if" if="{{!error}}">
+              <template is="dom-if" if="{{finalState}}" restamp="true">
+                <gs-board table="{{finalState.table}}" header="{{finalState.header}}" attire="{{attire}}"></gs-board>
+              </template>
+            </template>
+          </template>
+        </div>
+      </div>
+
+      <template is="dom-if" if="{{isFinalBoardSelected(selectedTab)}}">
+        <template is="dom-if" if="{{error}}">
+          <div class="boom-container">
+            <img src="../../images/boom.png">
+            <h2>[[localize("boom")]]</h2>
+            <div class="alert">{{error}}</div>
+          </div>
+        </template>
+      </template>
+    </div>
+
+  </template>
+
+  </dom-module>
+<script src="boards-panel.js"></script></body></html>

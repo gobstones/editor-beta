@@ -1,0 +1,31 @@
+@import '../../common/style';
+
+::content {
+  div.blue { background-image: url('op_bolita_azul.svg'); background-size: 20px 20px; }
+  div.black { background-image: url('op_bolita_negra.svg'); background-size: 20px 20px; }
+  div.red  { background-image: url('op_bolita_roja.svg'); background-size: 20px 20px; }
+  div.green { background-image: url('op_bolita_verde.svg'); background-size: 20px 20px; }
+  div.O { background: white; opacity: 0; }
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.gbs_stone {
+  font-weight: bold;
+  font-size: 8pt;
+  width: 20px;
+  height: 20px;
+
+  @extend .unselectable;
+}
+
+.gbs_stone:after { // preload images
+  content: url('op_bolita_azul.svg') url('op_bolita_negra.svg') url('op_bolita_roja.svg') url('op_bolita_verde.svg');
+  display: none;
+}
+
+.stone_amount {
+  vertical-align: sub;
+}

@@ -1,0 +1,69 @@
+<html><head><link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../scripts/jquery.html">
+<link rel="import" href="../../scripts/loaders/projectLoader.html">
+<link rel="import" href="../../scripts/loaders/codeLoader.html">
+<link rel="import" href="../../scripts/loaders/libraryLoader.html">
+<link rel="import" href="../../scripts/loaders/attireLoader.html">
+
+</head><body><dom-module id="left-menu">
+  <template>
+
+    <style>
+      .title {
+        margin: 3px;
+      }
+
+      .project-title {
+        margin: -20px 30px;
+      }
+
+      .items {
+        margin-top: 40px;
+      }
+
+      .action-text {
+        vertical-align: middle;
+      }
+
+      .action {
+        margin: 10px 0;
+      }
+    </style>
+
+    <div>
+      <save-and-load on-save="saveProject" on-load="loadProject"></save-and-load>
+    </div>
+    <h1 class="title">[[localize("project")]]</h1>
+    <paper-input class="project-title" value="{{projectName}}"></paper-input>
+
+    <div class="items">
+      <ul>
+        <li class="action">
+          <span>[[localize("code")]]</span>
+          <save-and-load on-save="saveCode" on-load="loadCode"></save-and-load>
+        </li>
+        <li class="action">
+          <span>[[localize("library")]]</span>
+          <save-and-load on-save="saveLibrary" on-load="loadLibrary"></save-and-load>
+        </li>
+        <!-- <li>Tablero inicial</li> --> <!-- // TODO -->
+        <li class="action">
+          <span>[[localize("attire")]]</span>
+          <save-and-load on-save="saveAttire" on-load="loadAttire"></save-and-load>
+        </li>
+      </ul>
+
+      <input id="Project" type="file" accept=".gbp" on-change="onLoadedProject" style="visibility: hidden;">
+
+      <input id="Code" type="file" accept=".gbs" on-change="onLoadedCode" style="visibility: hidden;">
+
+      <input id="Library" type="file" accept=".gbs" on-change="onLoadedLibrary" style="visibility: hidden;">
+
+      <input id="Attire" type="file" accept=".json" on-change="onLoadedAttire" style="visibility: hidden;">
+    </div>
+  </template>
+
+  </dom-module>
+<script src="left-menu.js"></script></body></html>

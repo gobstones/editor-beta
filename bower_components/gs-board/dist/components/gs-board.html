@@ -1,0 +1,247 @@
+<link rel="import" href="gs-cell.html">
+<link rel="import" href="key-tracker.html">
+<dom-module id="gs-board">
+  <template>
+    <style>
+      .pointer {
+        cursor: pointer;
+      }
+
+      .unselectable {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      table.gbs_board {
+        border-style: none;
+        border: solid black 0px;
+        border-spacing: 0;
+        border-collapse: collapse;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 9pt;
+        display: inline-block;
+        vertical-align: top;
+      }
+
+      .gbs_board td {
+        margin: 0;
+        padding: 2px;
+        border: solid #888 1px;
+        width: 30px;
+        height: 30px;
+      }
+
+      .gbs_board td.lv {
+        /* labels at the side */
+        text-align: center;
+        vertical-align: middle;
+        border-style: none;
+        border: solid black 0px;
+        background: #ddd;
+        width: 15px;
+      }
+
+      .gbs_board td.lh {
+        /* labels at the top / bottom */
+        text-align: center;
+        vertical-align: middle;
+        border-style: none;
+        border: solid black 0px;
+        background: #ddd;
+        height: 15px;
+      }
+
+      .gbs_board td.lx {
+        /* corner */
+        border-style: none;
+        border: solid black 0px;
+        background: #ddd;
+        width: 15px;
+        height: 15px;
+      }
+
+      .gbs_board td.top_left {
+        -webkit-border-top-left-radius: 10px;
+        -moz-border-top-left-radius: 10px;
+        border-top-left-radius: 10px;
+      }
+
+      .gbs_board td.top_right {
+        -webkit-border-top-right-radius: 10px;
+        -moz-border-top-right-radius: 10px;
+        border-top-right-radius: 10px;
+      }
+
+      .gbs_board td.bottom_left {
+        -webkit-border-bottom-left-radius: 10px;
+        -moz-border-bottom-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+      }
+
+      .gbs_board td.bottom_right {
+        -webkit-border-bottom-right-radius: 10px;
+        -moz-border-bottom-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+      }
+
+      table.boom {
+        background-image: url("boom.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+
+      /*# sourceMappingURL=style.css.map */
+
+    </style>
+
+    <key-tracker id="keyTracker"></key-tracker>
+
+    <table class$="gbs_board ui-widget-content {{boomCssClass(boom)}}">
+      <tbody>
+        <tr>
+          <td class="lx top_left"></td>
+          <template is="dom-repeat" items="{{columnIndexes}}" as="columnIndex">
+            <td class="lh">{{columnIndex}}</td>
+          </template>
+          <td class="lx top_right"></td>
+        </tr>
+        <template is="dom-repeat" items="{{table}}" as="row" index-as="rowIndex">
+          <tr>
+            <td class="lv">{{getRowNumber(table, rowIndex)}}</td>
+            <template is="dom-repeat" items="{{row}}" as="cell" index-as="cellIndex">
+              <td>
+                <gs-cell cell-index="{{cellIndex}}" row-index="{{rowIndex}}" cell="{{cell}}" table="{{table}}" header="{{header}}" options="{{options}}" attire="{{attire}}"></gs-cell>
+              </td>
+            </template>
+            <td class="lv">{{getRowNumber(table, rowIndex)}}</td>
+          </tr>
+        </template>
+        <tr>
+          <td class="lx bottom_left"></td>
+          <template is="dom-repeat" items="{{columnIndexes}}" as="columnIndex">
+            <td class="lh">{{columnIndex}}</td>
+          </template>
+          <td class="lx bottom_right"></td>
+        </tr>
+      </tbody>
+    </table>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'gs-board',
+      properties: {
+        table: Array,
+        size: {
+          type: Object,
+          value: {
+            x: 2,
+            y: 2
+          },
+          observer: "_updateSize"
+        },
+        header: {
+          type: Object,
+          value: {
+            x: 0,
+            y: 0
+          }
+        },
+        options: Object,
+        boom: {
+          type: Boolean,
+          value: false
+        },
+        attire: {
+          type: Object
+        }
+      },
+      ready: function() {
+        this._initializeTable();
+        return this._initializeOptions();
+      },
+      getRowNumber: function(table, rowIndex) {
+        return table.length - 1 - rowIndex;
+      },
+      isCtrlPressed: function() {
+        return this.$.keyTracker.isPressed("Control");
+      },
+      boomCssClass: function(boom) {
+        if (boom) {
+          return "boom";
+        } else {
+          return "";
+        }
+      },
+      _initializeTable: function() {
+        var _ref;
+        if (this.table != null) {
+          return this.size = {
+            x: ((_ref = this.table[0]) != null ? _ref.length : void 0) || 0,
+            y: this.table.length || 0
+          };
+        } else {
+          this.table = [];
+          return this._fillTable();
+        }
+      },
+      _fillTable: function() {
+        var i, j, limit, table, _base, _i, _j, _ref, _ref1;
+        if (this.table == null) {
+          return;
+        }
+        limit = function(array, limit) {
+          return array.slice(0, limit);
+        };
+        table = this.table.slice().reverse();
+        for (i = _i = 0, _ref = this.size.y; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+          for (j = _j = 0, _ref1 = this.size.x; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; j = 0 <= _ref1 ? ++_j : --_j) {
+            if (table[i] == null) {
+              table[i] = [];
+            }
+            table[i] = limit(table[i], this.size.x);
+            if ((_base = table[i])[j] == null) {
+              _base[j] = {};
+            }
+          }
+        }
+        table = limit(table, this.size.y);
+        this.table = table.reverse();
+        return this._forceHeaderSet();
+      },
+      _initializeOptions: function() {
+        var _base;
+        if (this.options == null) {
+          this.options = {};
+        }
+        return (_base = this.options).editable != null ? _base.editable : _base.editable = false;
+      },
+      _updateSize: function() {
+        var _i, _ref, _results;
+        this._fillTable();
+        this.columnIndexes = (function() {
+          _results = [];
+          for (var _i = 0, _ref = this.size.x; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results.push(_i); }
+          return _results;
+        }).apply(this);
+        return this.fire("board-changed");
+      },
+      _forceHeaderSet: function() {
+        var x, y;
+        x = Math.min(this.header.x, this.size.x - 1);
+        y = Math.min(this.header.y, this.size.y - 1);
+        this.header = null;
+        return this.header = {
+          x: x,
+          y: y
+        };
+      }
+    });
+
+  </script>
+</dom-module>
